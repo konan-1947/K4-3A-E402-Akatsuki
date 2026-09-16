@@ -1,0 +1,101 @@
+/* Cobalt visual language and the optional authoring brief. */
+.topic-instruction{border-top:1px solid var(--line);display:grid;gap:6px;margin-top:15px;padding-top:15px}
+.topic-instruction strong{font-size:.82rem}
+.topic-instruction textarea{background:#fbfcff;border:1px solid var(--line);border-radius:8px;color:#13234b;font-size:.79rem;line-height:1.5;margin-top:3px;outline:none;padding:10px;resize:vertical}
+.topic-instruction textarea::placeholder{color:#7486ad}
+.topic-instruction textarea:focus{border-color:var(--ink);box-shadow:0 0 0 3px #1746b81c}
+
+.app-header{background:rgba(245,248,255,.92)}
+.dashboard-hero,.guide-panel{background:#edf3ff}
+.step-current{background:#f3f6ff}
+.sidebar-profile>span{background:#dbe7ff;color:var(--ink)}
+.tiptap-toolbar{background:#edf3ff}
+.tiptap-toolbar-row-secondary{border-color:#d4e0fb}
+.tiptap-tool{color:#17336f}
+.tiptap-tool:hover,.tiptap-tool.is-active{background:var(--ink)}
+.lesson-document-editor{color:#13234b}
+.lesson-document-editor blockquote{border-color:var(--ink);color:#52658f}
+
+.learning-graph{background:#f8faff;border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.learning-graph header{align-items:center;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;padding:12px 14px}
+.learning-graph header strong{display:block;font-size:.75rem;margin-top:4px}
+.learning-graph header>span{background:#dfe9ff;border-radius:999px;color:var(--ink);font-size:.6rem;font-weight:750;letter-spacing:.08em;padding:6px 8px}
+.learning-canvas-scroll{overflow:auto}
+.learning-canvas{background-image:radial-gradient(#b9c9f0 1px,transparent 1px);background-size:16px 16px;height:400px;position:relative}
+.learning-edges{height:400px;inset:0;overflow:visible;pointer-events:none;position:absolute;width:100%}
+.learning-edges path{fill:none;stroke:#315cc2;stroke-width:2}
+.learning-edges marker path{fill:#315cc2}
+.learning-terminal{align-items:center;display:grid;justify-items:center;position:absolute;transform:translateX(-50%);z-index:2}
+.learning-terminal i{background:#fff;border:3px solid var(--ink);border-radius:50%;box-shadow:0 2px 7px #1746b82b;display:block;height:44px;width:44px}
+.learning-terminal span{color:#314a80;font-size:.64rem;font-weight:700;margin-top:7px;white-space:nowrap}
+.learning-end i{background:var(--ink);box-shadow:inset 0 0 0 7px #fff,0 2px 7px #1746b82b}
+.learning-node{background:#fff;border:1px solid #8fa9e7;border-radius:10px;box-shadow:0 5px 14px #1746b817;cursor:default;display:grid;gap:4px;min-height:98px;padding:13px;position:absolute;width:152px;z-index:3}
+.learning-node:hover{border-color:var(--ink);box-shadow:0 7px 17px #1746b829}
+.learning-node>span{color:var(--ink);font-size:.61rem;font-weight:800;letter-spacing:.1em}
+.learning-node b{color:#13234b;font-size:.76rem;line-height:1.25}
+.learning-node small{color:#6479a8;font-size:.64rem;margin-top:auto}
+.learning-canvas-empty{align-items:center;border:1px dashed var(--line);color:var(--muted);display:flex;justify-content:center;min-height:200px}
+
+@media(max-width:560px){.learning-graph header>span{display:none}.learning-canvas{height:400px}.learning-graph header{padding:11px}}
+
+.learning-editor{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.learning-editor-bar{align-items:center;background:#f3f6ff;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;padding:12px 14px}
+.learning-editor-bar strong{display:block;font-size:.75rem;margin-top:4px}
+.learning-editor-bar>div:last-child{display:flex;gap:7px}
+.learning-editor-bar button{background:var(--ink);border:0;border-radius:7px;color:#fff;font-size:.7rem;font-weight:700;padding:8px 10px}
+.learning-editor-bar button.danger{background:#fff;border:1px solid #bd4b5a;color:#9e2536}
+.learning-workspace{display:grid;grid-template-columns:minmax(0,1fr)}
+.learning-canvas-editable{cursor:grab;min-width:1160px}
+.learning-canvas-editable:active{cursor:grabbing}
+.learning-node{appearance:none;color:inherit;font-family:inherit;text-align:left}
+.learning-node.is-selected{border:2px solid var(--ink);box-shadow:0 0 0 4px #1746b81c,0 7px 17px #1746b829}
+.learning-node .node-connector{background:var(--ink);border:2px solid #fff;border-radius:50%;height:12px;position:absolute;right:-7px;top:calc(50% - 6px);width:12px}
+.learning-node{cursor:grab}
+.learning-node:active{cursor:grabbing}
+.learning-node-view{align-self:start;background:var(--soft);border:0;border-radius:4px;color:var(--ink);cursor:pointer;font-size:.61rem;font-weight:750;margin-top:3px;padding:4px 6px}
+.learning-node-view:hover{background:var(--ink);color:#fff}
+
+.blueprint-block.blueprint-block-full{grid-template-columns:48px minmax(0,1fr)}
+.blueprint-block-full .learning-block-fields{display:grid;grid-template-columns:minmax(0,1fr) 150px;grid-column:2;min-width:0}
+.blueprint-block.blueprint-block-full .rich-editor{grid-column:2}
+.blueprint-block-full .block-title,.blueprint-block-full .block-type{min-width:0}
+
+.learning-block-detail{border:1px solid var(--line);border-radius:10px;overflow:hidden;scroll-margin-top:104px}
+.learning-block-detail>header{align-items:center;background:#f7f9ff;border-bottom:1px solid var(--line);display:grid;grid-template-columns:auto minmax(0,1fr) 150px;height:52px}
+.learning-block-actions{align-items:center;border-right:1px solid var(--line);display:flex;height:100%;padding:0 8px}
+.learning-block-actions span{color:var(--ink);font-size:.67rem;font-weight:800;margin-right:6px}
+.learning-block-actions button{background:transparent;border:0;color:#6175a0;font-size:.95rem;padding:4px}
+.learning-block-actions button:hover{color:var(--ink)}
+.learning-block-title,.learning-block-type{background:transparent;border:0;color:#13234b;height:100%;min-width:0;outline:none;padding:0 13px}
+.learning-block-title{font-size:.84rem;font-weight:750}
+.learning-block-type{border-left:1px solid var(--line);color:#52658f;font-size:.72rem}
+.learning-block-detail .rich-editor{border:0;border-radius:0}
+.learning-block-detail .rich-editor>.field-label{display:none}
+@media(max-width:560px){.learning-block-detail>header{grid-template-columns:auto minmax(0,1fr)}.learning-block-type{display:none}}
+.learning-terminal{appearance:none;background:transparent;border:0;padding:0}
+.learning-terminal.is-selected i{box-shadow:0 0 0 4px #1746b81c,0 2px 7px #1746b82b}
+.learning-inspector{background:#f8faff;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:11px;padding:15px}
+.learning-inspector b{color:#17336f;font-size:.79rem}
+.learning-inspector p:not(.field-label){color:#6175a0;font-size:.7rem;line-height:1.5;margin:0}
+.learning-inspector label{color:#395484;display:grid;font-size:.68rem;font-weight:700;gap:5px}
+.learning-inspector input,.learning-inspector select{background:#fff;border:1px solid var(--line);border-radius:6px;color:#17336f;font-size:.73rem;outline:none;padding:8px;width:100%}
+.learning-inspector input:focus,.learning-inspector select:focus{border-color:var(--ink);box-shadow:0 0 0 3px #1746b81c}
+
+@media(max-width:800px){.learning-workspace{grid-template-columns:1fr}.learning-inspector{border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:560px){.learning-editor-bar{align-items:flex-start;flex-direction:column;gap:10px}.learning-editor-bar>div:last-child{width:100%}.learning-editor-bar button{flex:1}}
+
+/* Viewport behavior copied from the reference editor: no scrollbars, pan + zoom. */
+.learning-canvas-viewport{background-image:radial-gradient(#b9c9f0 1px,transparent 1px);background-size:16px 16px;cursor:default;min-height:510px;overflow:hidden;overscroll-behavior:contain;position:relative;touch-action:none}
+.learning-canvas-viewport.is-panning{cursor:grabbing}
+.learning-canvas-viewport .learning-canvas{background-image:none;transform-origin:0 0}
+.learning-canvas-viewport .learning-edges{height:100%;width:100%}
+.learning-canvas-viewport .learning-terminal{transform:none}
+.learning-edges line{fill:none;stroke:#315cc2;stroke-width:2}
+.learning-edges marker path{fill:#315cc2;stroke:none}
+.learning-editor-bar .zoom-control,.learning-editor-bar .zoom-readout{background:#fff;border:1px solid var(--line);color:var(--ink);min-width:30px;padding:8px}
+.learning-editor-bar .zoom-readout{min-width:49px}
+
+/* Native iOS/macOS system typography. */
+:root{--system-font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;--serif:var(--system-font)!important}
+body,button,input,textarea,select{font-family:var(--system-font)!important}
+.tiptap-tool,.lesson-document-editor{font-family:var(--system-font)!important}

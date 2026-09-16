@@ -32,6 +32,69 @@ trap cleanup EXIT INT TERM
 [[ -f "$frontend_dir/package.json" ]] || { echo "Không thấy frontend: $frontend_dir/package.json" >&2; exit 1; }
 command -v npm >/dev/null || { echo "Cần cài Node.js/npm trước khi chạy." >&2; exit 1; }
 
+port_is_busy() {
+  ss -ltnH "( sport = :$1 )" 2>/dev/null | grep -q .
+}
+
+ensure_port_is_available() {
+  local port="$1"
+  local service="$2"
+  local containers=""
+  local pids=""
+  local answer=""
+
+  if ! port_is_busy "$port"; then
+    return
+  fi
+
+  echo "Cổng $port cho $service đang được sử dụng."
+  if command -v docker >/dev/null; then
+    containers=$(docker ps --filter "publish=$port" --format '{{.ID}} {{.Names}}' 2>/dev/null || true)
+  fi
+  if [[ -n "$containers" ]]; then
+    echo "Container đang chiếm cổng:"
+    echo "$containers"
+  else
+    pids=$(fuser -n tcp "$port" 2>/dev/null | sed -E 's/.*: *//' || true)
+    [[ -n "$pids" ]] && echo "PID đang chiếm cổng: $pids"
+  fi
+
+  read -r -p "Dừng tiến trình/container đang chiếm cổng $port? [y/N] " answer
+  case "$answer" in
+    y|Y)
+      if [[ -n "$containers" ]]; then
+        while read -r container_id _; do
+          [[ -n "$container_id" ]] && docker stop "$container_id"
+        done <<< "$containers"
+      elif [[ -n "$pids" ]]; then
+        kill $pids
+      else
+        echo "Không xác định được owner của cổng $port; không tự dừng tiến trình." >&2
+        exit 1
+      fi
+      ;;
+    *)
+      echo "Không khởi động $service vì cổng $port vẫn đang bận."
+      exit 1
+      ;;
+  esac
+
+  for _ in {1..20}; do
+    if ! port_is_busy "$port"; then
+      return
+    fi
+    sleep 0.1
+  done
+
+  if port_is_busy "$port"; then
+    echo "Cổng $port vẫn đang bận sau khi dừng tiến trình." >&2
+    exit 1
+  fi
+}
+
+ensure_port_is_available "$be_port" "backend"
+ensure_port_is_available "$fe_port" "frontend"
+
 if [[ ! -d "$frontend_dir/node_modules" ]]; then
   echo "Đang cài dependencies frontend..."
   (cd "$frontend_dir" && npm ci)

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useDemo } from "../../components/demo-provider";
+import { AppShell } from "../../components/app-shell";
 
 const messages = [
   { from: 0, to: 1, label: "“Lịch trống chiều mai?”" },
@@ -20,15 +21,15 @@ export default function UserPage() {
   const [answer, setAnswer] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const correct = answer === "B";
-  if (!demo.published) return <main className="unpublished"><Link className="brand" href="/">StudyPulse<span>·</span>learn</Link><div><p className="eyebrow">LESSON CHƯA XUẤT BẢN</p><h1>Lesson đang được lab coach hoàn thiện.</h1><Link className="primary-button inline-button" href="/labcoach">Tới workspace →</Link></div></main>;
-  return <main className="lesson-shell"><header className="topbar gray-band"><Link className="brand" href="/">StudyPulse<span>·</span>learn</Link><nav><Link href="/labcoach">Studio ↗</Link><button className="text-button" onClick={demo.reset}>Reset</button></nav></header><article className="lesson">
+  if (!demo.published) return <AppShell active="lesson" eyebrow="LEARNER VIEW" title="Lesson preview"><main className="unpublished"><div><p className="eyebrow">LESSON CHƯA XUẤT BẢN</p><h2>Lesson đang được lab coach hoàn thiện.</h2><p>Bản học sẽ xuất hiện ở đây sau khi người duyệt hoàn tất nội dung.</p><Link className="primary-button inline-button" href="/labcoach">Tới workspace →</Link></div></main></AppShell>;
+  return <AppShell active="lesson" eyebrow="LEARNER VIEW · MCP FUNDAMENTALS" title="Lesson preview"><main className="lesson-shell"><article className="lesson">
     <header className="lesson-hero"><p className="eyebrow">MCP FUNDAMENTALS · 12 PHÚT</p><h1>MCP và nguyên tắc sử dụng</h1><div className="lesson-meta"><span>Lab coach approved</span><span>·</span><span>2 sources</span></div></header>
     <section className="lesson-section"><p className="section-number">01 — MENTAL MODEL</p><h2>MCP là bộ điều phối có cổng kiểm soát.</h2><p>MCP chuẩn hoá cách ứng dụng AI khám phá năng lực được công bố, gửi yêu cầu đúng phạm vi và nhận lại kết quả có thể kiểm tra.</p><div className="image-placeholder gray-band"><span>IMAGE PLACEHOLDER</span><strong>AI đứng trước các cổng công cụ, mỗi cổng có nhãn quyền truy cập.</strong></div></section>
     <section className="lesson-section"><p className="section-number">02 — MCP SEQUENCE</p><h2>Xem một request đi qua hệ thống.</h2><div className="guide-inline gray-band"><b>Cách dùng</b><span>Nhấn từng bước để hiện message mới trên sequence diagram.</span></div><SequenceDiagram step={step} /><div className="diagram-controls"><button className="secondary-button" disabled={step < 0} onClick={() => setStep((value) => value - 1)}>← Quay lại</button><button className="secondary-button" onClick={() => setStep(-1)}>Reset</button><button className="primary-button" disabled={step === messages.length - 1} onClick={() => setStep((value) => value + 1)}>{step < 0 ? "Bắt đầu" : "Bước tiếp →"}</button></div></section>
     <section className="lesson-section"><p className="section-number">03 — NGUYÊN TẮC</p><h2>Chỉ dùng đúng năng lực được cho phép.</h2><div className="principle-grid"><div><b>01</b><h3>Quyền tối thiểu</h3><p>Chỉ công bố đúng tool và tham số cần thiết.</p></div><div><b>02</b><h3>Ý định rõ ràng</h3><p>Xin xác nhận trước hành động có tác động.</p></div><div><b>03</b><h3>Truy vết được</h3><p>Giữ lại nguồn của câu trả lời.</p></div></div></section>
     <section className="lesson-section checkpoint"><p className="section-number">04 — CHECKPOINT</p><h2>Chọn hành động phù hợp.</h2><p>MCP server chỉ công bố <code>calendar.read</code>.</p><div className="options">{[["A", "AI tự gửi email xác nhận cuộc họp."], ["B", "Đọc lịch rồi đề xuất khung giờ trống."], ["C", "AI xoá lịch cũ để tạo chỗ trống."]].map(([key, label]) => <label className={answer === key ? "option selected" : "option"} key={key}><input type="radio" name="checkpoint" checked={answer === key} onChange={() => { setAnswer(key); setSubmitted(false); }} /><span>{key}</span>{label}</label>)}</div><button className="primary-button" disabled={!answer} onClick={() => setSubmitted(true)}>Kiểm tra →</button>{submitted && <div className={correct ? "feedback correct" : "feedback incorrect"}><b>{correct ? "Đúng rồi." : "Chưa đúng."}</b><p>{correct ? "calendar.read chỉ đọc dữ liệu trong phạm vi đã công bố." : "Quyền tối thiểu nghĩa là chỉ gọi đúng tool và hành động được cho phép."}</p></div>}</section>
     <footer className="lesson-footer"><p>StudyPulse lesson</p><Link href="/labcoach">Quay lại studio ↗</Link></footer>
-  </article></main>;
+  </article></main></AppShell>;
 }
 
 function SequenceDiagram({ step }: { step: number }) {
