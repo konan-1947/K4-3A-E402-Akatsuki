@@ -1,127 +1,204 @@
 # User stories — StudyPulse
 
-## Phạm vi route
+## Mục tiêu sản phẩm
 
-| Người dùng | Route | Mục tiêu chính |
+StudyPulse giúp học viên **nắm một mental model rõ ràng** cho concept khó. Lab coach dùng tài liệu có sẵn để tạo và duyệt nội dung theo ba tầng:
+
+```text
+Tài liệu nguồn → Mental model → Cấu trúc lesson → Bài viết đa phương tiện → Học viên học & checkpoint
+                    duyệt 1           duyệt 2                  duyệt 3
+```
+
+AI không được đi thẳng từ tài liệu nguồn sang bài viết cuối. Mỗi tầng cần có trạng thái `draft` → `approved` để lab coach kiểm soát chất lượng và căn cứ kiến thức.
+
+## Route và quyền chính
+
+| Người dùng | Route | Có thể làm |
 | --- | --- | --- |
-| Lab coach | `/labcoach` | Tạo, kiểm tra và xuất bản lesson từ tài liệu nguồn. |
-| Học viên | `/user` | Học một concept khó bằng lesson trực quan, có nguồn dẫn và checkpoint. |
+| Lab coach | `/labcoach` | Chọn nguồn, tạo/chỉnh sửa/duyệt mental model, cấu trúc lesson và bài viết; xuất bản lesson. |
+| Học viên | `/user` | Xem lesson đã xuất bản, tương tác mô phỏng, làm checkpoint và nhận phản hồi. |
 
 ---
 
-## 1. Lab coach — `/labcoach`
+## Cấu trúc lesson đề xuất
 
-### US-LC-01 · Chọn nguồn để tạo lesson
+Sau khi mental model được duyệt, AI sinh một **lesson blueprint** gồm các block dưới đây. Lab coach có thể xoá, thêm hoặc đổi thứ tự block trước khi duyệt.
 
-**Là một** lab coach, **tôi muốn** chọn transcript, slide hoặc script liên quan đến một concept, **để** AI chỉ dùng các nguồn đã được duyệt khi tạo lesson.
+| Block | Mục đích | Dạng nội dung chính |
+| --- | --- | --- |
+| 1. Bối cảnh và câu hỏi dẫn | Gợi lại lúc học viên gặp khó khăn hoặc cần dùng concept. | Text ngắn + tình huống. |
+| 2. Mental model | Cho học viên một cách hình dung trung tâm, dễ nhớ. | Một câu, phép so sánh và hình/diagram. |
+| 3. Cơ chế theo từng bước | Giải thích các thành phần, quan hệ và luồng hoạt động. | Text ngắn, diagram. |
+| 4. Ví dụ có hướng dẫn | Áp mental model vào một ví dụ cụ thể. | Text + hình/diagram. |
+| 5. Mô phỏng tương tác | Cho học viên thay đổi input và quan sát kết quả. | HTML nhúng chạy trong lesson. |
+| 6. Sai lầm thường gặp | Phân biệt mental model đúng với các hiểu nhầm phổ biến. | Text + đối chiếu trực quan. |
+| 7. Checkpoint | Kiểm tra học viên có áp dụng được mental model không. | Câu hỏi, đáp án và giải thích. |
+| 8. Tóm tắt và bước tiếp theo | Củng cố ý chính và gợi ý phần cần học tiếp. | Text ngắn + liên kết nguồn. |
 
-**Tiêu chí chấp nhận**
-
-- Có thể chọn một hoặc nhiều tài liệu nguồn.
-- Mỗi nguồn hiển thị tên và phần/đoạn đã chọn.
-- Không thể tạo lesson khi chưa chọn nguồn.
-
-### US-LC-02 · Thiết lập mục tiêu lesson
-
-**Là một** lab coach, **tôi muốn** nhập concept và mục tiêu học, **để** lesson được tạo phù hợp với trình độ học viên.
-
-**Tiêu chí chấp nhận**
-
-- Có trường concept, ví dụ: `Transformer Attention`.
-- Có trường mục tiêu học hoặc mức độ mong muốn.
-- Các thông tin này được hiển thị trong lesson tạo ra.
-
-### US-LC-03 · Tạo bản nháp lesson bằng AI
-
-**Là một** lab coach, **tôi muốn** AI tổng hợp nguồn thành bản nháp lesson, **để** giảm thời gian ghép các tài liệu rời rạc.
-
-**Tiêu chí chấp nhận**
-
-- Một lời gọi AI thật tạo ra: mental model, giải thích ngắn, ví dụ, diagram/mô tả diagram và checkpoint.
-- Mỗi ý quan trọng có citation về nguồn tương ứng.
-- Nếu nguồn không đủ, AI nêu phần thiếu thay vì tự khẳng định nội dung không có căn cứ.
-
-### US-LC-04 · Rà soát và chỉnh sửa lesson
-
-**Là một** lab coach, **tôi muốn** xem và chỉnh sửa bản nháp trước khi xuất bản, **để** tránh truyền đạt kiến thức sai hoặc chưa rõ.
-
-**Tiêu chí chấp nhận**
-
-- Có thể sửa tiêu đề, mental model, giải thích, ví dụ và câu checkpoint.
-- Có thể xem citation của mỗi phần.
-- Nội dung chưa xuất bản được đánh dấu là bản nháp.
-
-### US-LC-05 · Xuất bản lesson
-
-**Là một** lab coach, **tôi muốn** xuất bản lesson đã duyệt, **để** học viên có thể học trên route `/user`.
-
-**Tiêu chí chấp nhận**
-
-- Có nút xuất bản chỉ xuất hiện sau khi lesson có nội dung tối thiểu.
-- Lesson xuất bản hiển thị trạng thái và thời điểm xuất bản.
-- Lesson xuất bản có thể được mở bởi học viên.
+MVP bắt buộc có block 2, 3, 4, 5 và 7. Các block còn lại là tuỳ chọn khi thiếu thời gian.
 
 ---
 
-## 2. Học viên — `/user`
+## User stories — Lab coach (`/labcoach`)
 
-### US-US-01 · Chọn lesson cần học lại
+### US-LC-01 · Chọn tài liệu nguồn và phạm vi concept
 
-**Là một** học viên, **tôi muốn** xem danh sách lesson theo concept, **để** nhanh chóng tìm phần mình chưa hiểu.
+**Là một** lab coach, **tôi muốn** chọn transcript, slide hoặc script liên quan đến một concept và xác định mục tiêu học, **để** AI chỉ dựa trên đúng nguồn được duyệt.
 
-**Tiêu chí chấp nhận**
+**Tính năng**
 
-- Danh sách hiển thị tiêu đề, concept và mô tả ngắn.
-- Có thể mở một lesson để bắt đầu học.
-
-### US-US-02 · Hiểu concept qua mental model trực quan
-
-**Là một** học viên, **tôi muốn** xem mental model, diagram và ví dụ ngắn, **để** nối được các ý chính mà không phải mở nhiều tài liệu khác nhau.
+- Danh sách/tải lên tài liệu nguồn; mỗi tài liệu có tên, loại, đoạn hoặc trang được chọn.
+- Trường `Concept`, ví dụ `Transformer Attention`, và `Mục tiêu sau lesson`.
+- Nút `Tạo mental model` bị khoá nếu chưa có concept hoặc nguồn.
 
 **Tiêu chí chấp nhận**
 
-- Lesson có mental model một câu, giải thích theo bước, diagram và ví dụ.
-- Nội dung được chia nhỏ, dễ đọc trên một màn hình.
-- Có thể mở citation để biết nội dung dựa trên slide hoặc transcript nào.
+- Lưu liên kết giữa concept, mục tiêu và các nguồn đã chọn.
+- Lab coach thấy lại toàn bộ nguồn trước khi gọi AI.
 
-### US-US-03 · Hỏi lại khi chưa hiểu
+### US-LC-02 · Tạo mental model từ tài liệu
 
-**Là một** học viên, **tôi muốn** yêu cầu AI giải thích lại một phần của lesson, **để** hiểu rõ theo cách diễn đạt khác mà vẫn bám vào nguồn học.
+**Là một** lab coach, **tôi muốn** AI đề xuất mental model từ các tài liệu đã chọn, **để** có một khung giải thích trung tâm trước khi tạo bài viết.
 
-**Tiêu chí chấp nhận**
+**Tính năng**
 
-- Có thể chọn một phần lesson và yêu cầu giải thích lại.
-- Phản hồi AI liên kết với lesson hoặc nguồn đã chọn.
-- Nếu câu hỏi vượt ngoài nguồn, AI nói rõ giới hạn và gợi ý tài liệu cần xem thêm.
-
-### US-US-04 · Tự kiểm tra mức hiểu
-
-**Là một** học viên, **tôi muốn** làm checkpoint sau khi học, **để** biết mình đã hiểu concept hay chưa.
+- Nút `Tạo mental model bằng AI` tạo bản nháp gồm: tên, mental model một câu, phép so sánh/ẩn dụ, giải thích ngắn và citation nguồn.
+- Hiển thị trạng thái `Đang tạo`, `Bản nháp`, `Cần bổ sung nguồn` hoặc `Lỗi`.
+- Mỗi claim có nút mở citation để xem đoạn transcript hoặc slide liên quan.
+- Nếu bằng chứng không đủ, AI chỉ ra phần thiếu thay vì tự bịa định nghĩa.
 
 **Tiêu chí chấp nhận**
 
-- Lesson có ít nhất một checkpoint.
-- Sau khi trả lời, học viên nhận phản hồi đúng/sai kèm giải thích.
-- Nếu trả lời sai, giao diện chỉ lại phần lesson nên xem lại.
+- Có ít nhất một lời gọi AI thật.
+- Bản nháp chưa xuất hiện tại route học viên.
 
-### US-US-05 · Hoàn thành lesson
+### US-LC-03 · Chỉnh sửa và duyệt mental model
 
-**Là một** học viên, **tôi muốn** thấy lesson đã hoàn thành sau checkpoint, **để** biết mình đã học xong phần đó.
+**Là một** lab coach, **tôi muốn** chỉnh sửa và duyệt mental model, **để** bài viết sau đó bám theo cách giải thích mà tôi xác nhận là đúng.
+
+**Tính năng**
+
+- Có thể sửa tên, câu mental model, phép so sánh và giải thích.
+- Có nút `Tạo lại`, `Lưu nháp` và `Duyệt mental model`.
+- Sau khi duyệt, version mental model được khoá làm đầu vào blueprint; chỉnh sửa sau đó yêu cầu duyệt lại.
+
+### US-LC-04 · Tạo cấu trúc bài viết từ mental model đã duyệt
+
+**Là một** lab coach, **tôi muốn** AI tạo lesson blueprint dựa trên mental model đã duyệt, **để** kiểm tra mạch sư phạm trước khi sinh bài viết dài.
+
+**Tính năng**
+
+- Nút `Tạo cấu trúc lesson` chỉ khả dụng khi mental model là `approved`.
+- AI sinh các block trong cấu trúc lesson; mỗi block có tiêu đề, mục tiêu, dạng nội dung, mô tả, nguồn tham chiếu và nhiệm vụ sinh nội dung.
+- Mỗi block được gắn loại: `text`, `image`, `diagram`, `interactive-html` hoặc `checkpoint`.
+- Với mô phỏng, AI tạo **simulation brief**: điều cần quan sát, input có thể thay đổi, output và insight phải rút ra.
 
 **Tiêu chí chấp nhận**
 
-- Sau khi hoàn thành checkpoint, lesson có trạng thái hoàn thành.
-- Hiển thị gợi ý học tiếp hoặc xem lại nguồn nếu cần.
+- Blueprint tham chiếu đúng mental model đã duyệt.
+- Có tối thiểu: mental model, cơ chế, ví dụ, mô phỏng và checkpoint.
+- Chưa sinh bài viết hoàn chỉnh ở bước này.
+
+### US-LC-05 · Chỉnh sửa và duyệt cấu trúc bài viết
+
+**Là một** lab coach, **tôi muốn** chỉnh sửa, sắp xếp và duyệt blueprint, **để** chỉ sinh những phần nội dung thực sự cần cho học viên.
+
+**Tính năng**
+
+- Có thể đổi tiêu đề/mô tả, thêm/xoá block, kéo-thả đổi thứ tự và chọn block được sinh.
+- Có preview ngắn từng block.
+- Có nút `Lưu nháp`, `Duyệt cấu trúc`; `Sinh bài viết` chỉ mở sau khi blueprint được duyệt.
+
+### US-LC-06 · Sinh bài viết đa phương tiện
+
+**Là một** lab coach, **tôi muốn** AI sinh bài viết từ blueprint đã duyệt, **để** học viên có lesson liền mạch thay vì phải ghép nhiều tài liệu.
+
+**Tính năng**
+
+- Nút `Sinh bài viết` tạo nội dung theo từng block và báo tiến độ.
+- Block text có tiêu đề, giải thích ngắn, citation và liên hệ về mental model.
+- Block ảnh dùng `image placeholder` trong MVP, bao gồm mô tả hình cần có và alt text; sau này thay bằng ảnh tìm kiếm hoặc ảnh AI sinh.
+- Block diagram dùng `diagram placeholder` trong MVP, bao gồm mô tả diagram và mã Mermaid dự kiến; sau này frontend render Mermaid.
+- Block mô phỏng gồm HTML/CSS/JavaScript nhúng trong `iframe sandbox`, có nút chạy lại/reset; mã nhúng không được truy cập cookie, local storage hoặc trang cha.
+- Block checkpoint có câu hỏi, đáp án, giải thích đúng/sai và liên kết đến phần nên xem lại.
+
+**Tiêu chí chấp nhận**
+
+- Bài viết giữ thứ tự block của blueprint đã duyệt.
+- Text và checkpoint có căn cứ từ nguồn/mental model; citation vẫn mở được.
+- Placeholder ảnh/diagram hiển thị rõ là placeholder, không giả là nội dung đã xác minh.
+- Mô phỏng chạy trong preview mà không phá giao diện lesson.
+
+### US-LC-07 · Rà soát, duyệt và xuất bản lesson
+
+**Là một** lab coach, **tôi muốn** xem bài viết hoàn chỉnh, chỉnh sửa cuối và xuất bản, **để** học viên chỉ nhìn thấy lesson đã được duyệt.
+
+**Tính năng**
+
+- Preview giống route `/user`; có thể sửa text, thay placeholder, bật/tắt block hoặc tạo lại riêng một block.
+- Trạng thái `draft`, `ready_for_review`, `approved`, `published`.
+- Nút `Xuất bản` chỉ khả dụng khi mental model, blueprint và bài viết đã duyệt.
 
 ---
 
-## MVP demo đề xuất
+## User stories — Học viên (`/user`)
 
-Trong lượt demo đầu tiên, ưu tiên triển khai đầy đủ luồng sau:
+### US-US-01 · Mở lesson đã xuất bản
 
-1. Lab coach chọn nguồn và concept.
-2. AI tạo lesson có citation.
-3. Lab coach duyệt và xuất bản.
-4. Học viên mở lesson, xem diagram và làm một checkpoint.
+**Là một** học viên, **tôi muốn** chọn lesson theo concept, **để** học lại phần mình chưa hiểu.
 
-Các user story hỏi lại bằng AI, danh sách nhiều lesson và theo dõi tiến độ có thể để sau nếu thiếu thời gian.
+**Tính năng**
+
+- Danh sách lesson chỉ gồm nội dung `published`.
+- Mỗi lesson hiển thị concept, mental model một câu và thời lượng ước tính.
+
+### US-US-02 · Nắm mental model trước khi đi vào chi tiết
+
+**Là một** học viên, **tôi muốn** thấy mental model, hình/diagram và lời giải thích ngắn ở đầu lesson, **để** có khung tư duy trước khi đọc cơ chế chi tiết.
+
+**Tiêu chí chấp nhận**
+
+- Mental model xuất hiện trước phần cơ chế và ví dụ.
+- Học viên mở được citation để biết nguồn gốc thông tin.
+- Placeholder ảnh/diagram hiển thị rõ trong prototype.
+
+### US-US-03 · Khám phá bằng mô phỏng tương tác
+
+**Là một** học viên, **tôi muốn** thay đổi input trong mô phỏng và quan sát kết quả, **để** hiểu quan hệ nhân quả của concept thay vì chỉ đọc lý thuyết.
+
+**Tính năng**
+
+- Mô phỏng HTML nhúng có chỉ dẫn “thử thay đổi gì” và “cần quan sát gì”.
+- Có nút `Reset mô phỏng`.
+- Có câu hỏi phản tư gắn với mental model.
+
+### US-US-04 · Làm checkpoint và nhận phản hồi
+
+**Là một** học viên, **tôi muốn** làm checkpoint sau lesson, **để** kiểm tra mình có áp dụng đúng mental model hay không.
+
+**Tiêu chí chấp nhận**
+
+- Có ít nhất một câu checkpoint.
+- Sau khi trả lời, hiển thị phản hồi đúng/sai kèm giải thích.
+- Nếu sai, phản hồi dẫn về đúng block cần xem lại, không chỉ đưa đáp án.
+
+### US-US-05 · Hoàn tất lesson
+
+**Là một** học viên, **tôi muốn** biết khi nào mình đã hoàn thành lesson, **để** tiếp tục concept khác hoặc xem lại phần còn yếu.
+
+**Tiêu chí chấp nhận**
+
+- Hoàn thành checkpoint sẽ hiện trạng thái hoàn thành.
+- Có gợi ý xem lại mental model, mô phỏng hoặc tài liệu nguồn khi cần.
+
+---
+
+## Luồng MVP cần demo
+
+1. Lab coach chọn hai nguồn về một concept.
+2. AI tạo mental model có citation; lab coach sửa một câu và duyệt.
+3. AI tạo blueprint; lab coach duyệt cấu trúc mental model → cơ chế → ví dụ → mô phỏng → checkpoint.
+4. AI sinh lesson có text, placeholder ảnh, placeholder Mermaid diagram, một mô phỏng HTML nhúng và checkpoint.
+5. Học viên mở lesson, thao tác mô phỏng, trả lời checkpoint và nhận phản hồi.
+
+**Ngoài scope MVP:** tạo ảnh/diagram thật, quản lý phiên bản phức tạp, đăng nhập/phân quyền đầy đủ, thư viện lesson lớn và cá nhân hoá lộ trình học.
