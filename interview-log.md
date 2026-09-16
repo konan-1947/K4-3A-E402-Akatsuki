@@ -6,62 +6,24 @@
 
 ## Phiên phỏng vấn #1
 
-- **Người trả lời:** [Họ và tên / mã ẩn danh]
-- **Vai trò:** Học viên AI20K
-- **Ngày phỏng vấn:** [dd/mm/yyyy]
-- **Người phỏng vấn:** [Tên]
-- **Concept/chủ đề được nhắc đến:** [Ví dụ: Transformer Attention]
+- **Người trả lời:** Lab coach HaiDM
+- **Vai trò:** Lab coach AI20K
+- **Ngày phỏng vấn:** 16/09/2026
+- **Người phỏng vấn:** Vũ Đình Đăng
+- **Concept/chủ đề được nhắc đến:** Trải nghiệm sử dụng VLearn và tạo tài liệu học tập bằng AI
 
-| #   | Câu hỏi                                                                                             | Câu trả lời nguyên văn |
-| --- | --------------------------------------------------------------------------------------------------- | ---------------------- |
-| 1   | Lần gần nhất bạn cần học lại hoặc hiểu kỹ một concept trong bài giảng là khi nào? Concept đó là gì? | [Ghi nguyên văn]       |
-| 2   | Khi đó bạn đã làm gì đầu tiên để hiểu concept này?                                                  | [Ghi nguyên văn]       |
-| 3   | Bạn đã dùng những tài liệu hoặc công cụ nào? Bạn chuyển qua lại giữa chúng như thế nào?             | [Ghi nguyên văn]       |
-| 4   | Chỗ nào khiến bạn mất thời gian hoặc thấy khó hiểu nhất?                                            | [Ghi nguyên văn]       |
-| 5   | Bạn có nhớ một ý, ví dụ hoặc mối liên hệ nào mà bạn vẫn chưa hiểu rõ không? Vì sao?                 | [Ghi nguyên văn]       |
-| 6   | Bạn đã thử cách nào khác chưa? Vì sao cách đó chưa giải quyết được vấn đề?                          | [Ghi nguyên văn]       |
-| 7   | Tổng cộng lần đó bạn mất khoảng bao lâu để hiểu hoặc quyết định dừng lại?                           | [Ghi nguyên văn]       |
-| 8   | Sau khi học lại, bạn tự kiểm tra mình đã hiểu bằng cách nào?                                        | [Ghi nguyên văn]       |
-| 9   | Có lúc nào bạn phải mở thêm tab/nguồn khác chỉ để nối các ý lại với nhau không? Kể cụ thể lần đó.   | [Ghi nguyên văn]       |
-| 10  | Nếu có thể thay đổi một điều trong cách học lại bài giảng hiện nay, bạn muốn thay đổi điều gì?      | [Ghi nguyên văn]       |
+### Nội dung phỏng vấn
+
+| Câu hỏi                                                                   | Câu trả lời                                                                                                                                                                                                                                                                                                                                                                                                                            | Người trả lời   |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| Đọc thử tài liệu VLearn, khá khó hiểu. Khó hiểu ở chỗ nào?                | Tài liệu không liên kết (các phần rời rạc, các thuật ngữ không có giải thích). Vấn đề dễ thấy trong VLearn là UX bản mới không đủ tốt; các tài liệu không có từ điển thuật ngữ để tra cứu. Noi dung tai lieu roi rac, khong lien ket giua cac phan, dinh nghia khong duoc giai thich day du, dan toi hieu ung domino: khong hieu phan tren la khong hieu phan duoi. Video không trực quan, khi sử dụng phải tua lại nên mất thời gian. | Lab coach HaiDM |
+| Vấn đề gì khiến việc tạo tài liệu không ra được kết quả đầu ra mong muốn? | Vấn đề thời gian: không đủ thời gian để tạo và review kết quả thực tế sau khi AI tạo. (Tài liệu đưa ra cho học viên đọc là do AI tạo.) Vấn đề nguồn tài liệu: những bài lab, tài liệu/slide thầy cô đưa không đồng nhất; rất khó gộp lại kiến thức.                                                                                                                                                                                    | Lab coach HaiDM |
+| Mong muốn giải pháp cho lab coach?                                        | Một nền tảng có thể tổng hợp các tài liệu, script và bất cứ nguồn đầu vào nào để tạo nên tài liệu dễ hiểu cho học viên; tạo sinh tài liệu chỉ trong một nút ấn.                                                                                                                                                                                                                                                                        | Lab coach HaiDM |
+| Mong muốn tài liệu đầu ra cho học viên?                                   | File đa phương tiện, có text, hình ảnh, diagram, mô phỏng... miễn là học viên chỉ cần đọc file đó, không cần tra cứu, cũng có thể hiểu được mental model cần truyền đạt. Đọc xong có thể nắm được điều bài giảng muốn truyền tải.                                                                                                                                                                                                      | Lab coach HaiDM |
 
 ### Ghi chú quan sát
 
-- Hành vi/công cụ được nhắc tới nhiều nhất: [Điền sau phỏng vấn]
-- Pain cụ thể và hậu quả: [Điền sau phỏng vấn]
-- Quote có thể dùng làm evidence: [Trích nguyên văn, kèm số phiên]
-- Follow-up cần xác minh: [Nếu có]
-
----
-
-## Phiên phỏng vấn #2
-
-- **Người trả lời:** [Họ và tên / mã ẩn danh]
-- **Vai trò:** Học viên AI20K
-- **Ngày phỏng vấn:** [dd/mm/yyyy]
-- **Người phỏng vấn:** [Tên]
-- **Concept/chủ đề được nhắc đến:** [Điền]
-
-| #   | Câu hỏi                                                                                             | Câu trả lời nguyên văn |
-| --- | --------------------------------------------------------------------------------------------------- | ---------------------- |
-| 1   | Lần gần nhất bạn cần học lại hoặc hiểu kỹ một concept trong bài giảng là khi nào? Concept đó là gì? | [Ghi nguyên văn]       |
-| 2   | Khi đó bạn đã làm gì đầu tiên để hiểu concept này?                                                  | [Ghi nguyên văn]       |
-| 3   | Bạn đã dùng những tài liệu hoặc công cụ nào? Bạn chuyển qua lại giữa chúng như thế nào?             | [Ghi nguyên văn]       |
-| 4   | Chỗ nào khiến bạn mất thời gian hoặc thấy khó hiểu nhất?                                            | [Ghi nguyên văn]       |
-| 5   | Bạn có nhớ một ý, ví dụ hoặc mối liên hệ nào mà bạn vẫn chưa hiểu rõ không? Vì sao?                 | [Ghi nguyên văn]       |
-| 6   | Bạn đã thử cách nào khác chưa? Vì sao cách đó chưa giải quyết được vấn đề?                          | [Ghi nguyên văn]       |
-| 7   | Tổng cộng lần đó bạn mất khoảng bao lâu để hiểu hoặc quyết định dừng lại?                           | [Ghi nguyên văn]       |
-| 8   | Sau khi học lại, bạn tự kiểm tra mình đã hiểu bằng cách nào?                                        | [Ghi nguyên văn]       |
-| 9   | Có lúc nào bạn phải mở thêm tab/nguồn khác chỉ để nối các ý lại với nhau không? Kể cụ thể lần đó.   | [Ghi nguyên văn]       |
-| 10  | Nếu có thể thay đổi một điều trong cách học lại bài giảng hiện nay, bạn muốn thay đổi điều gì?      | [Ghi nguyên văn]       |
-
-### Ghi chú quan sát
-
-- Hành vi/công cụ được nhắc tới nhiều nhất: [Điền sau phỏng vấn]
-- Pain cụ thể và hậu quả: [Điền sau phỏng vấn]
-- Quote có thể dùng làm evidence: [Trích nguyên văn, kèm số phiên]
-- Follow-up cần xác minh: [Nếu có]
-
----
-
-> Sao chép một khối “Phiên phỏng vấn” cho mỗi người tiếp theo. Ghi nguyên văn câu trả lời, kể cả khi câu trả lời không ủng hộ ý tưởng của nhóm.
+- Hành vi/công cụ được nhắc tới nhiều nhất: Tra cứu tài liệu VLearn, xem/tua lại video bài giảng, tổng hợp bài lab–slide–script và dùng AI tạo tài liệu cho học viên.
+- Pain cụ thể và hậu quả: Tài liệu rời rạc, thiếu giải thích thuật ngữ và từ điển tra cứu; video không trực quan nên phải tua lại. Nguồn đầu vào không đồng nhất, đồng thời thiếu thời gian để tạo và review tài liệu do AI sinh, khiến việc tạo tài liệu rõ ràng cho học viên khó và chậm.
+- Quote có thể dùng làm evidence: “Tài liệu không liên kết (các phần rời rạc, các thuật ngữ không có giải thích).” — Lab coach HaiDM, Phiên #1.
+- Follow-up cần xác minh: Kiểm chứng với các lab coach và học viên khác về mức độ phổ biến của việc tài liệu rời rạc, thiếu tra cứu thuật ngữ và thời gian review tài liệu AI tạo.
