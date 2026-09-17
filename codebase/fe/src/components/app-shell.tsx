@@ -22,6 +22,7 @@ export function AppShell({ active, eyebrow, title, children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return <div className="app-shell">
+    <a className="skip-link" href="#main-content">Đi tới nội dung</a>
     {menuOpen && <button className="sidebar-backdrop" aria-label="Đóng menu" onClick={() => setMenuOpen(false)} />}
     <aside className={menuOpen ? "app-sidebar is-open" : "app-sidebar"}>
       <Link className="sidebar-brand" href="/" onClick={() => setMenuOpen(false)}><Mark /><span>StudyPulse</span></Link>
@@ -36,7 +37,7 @@ export function AppShell({ active, eyebrow, title, children }: AppShellProps) {
         <div className="sidebar-profile"><span>LC</span><div><b>Lab coach</b><small>Content reviewer</small></div></div>
       </div>
     </aside>
-    <section className="app-main">
+    <section className="app-main" id="main-content">
       <header className="app-header">
         <button className="menu-button" aria-label="Mở menu" onClick={() => setMenuOpen(true)}><i /><i /><i /></button>
         <div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1></div>

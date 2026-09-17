@@ -11,7 +11,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import { TextStyleKit } from "@tiptap/extension-text-style";
 import StarterKit from "@tiptap/starter-kit";
 
-type RichTextEditorProps = { content: string; onChange: (html: string) => void; label?: string; compact?: boolean };
+type RichTextEditorProps = { content: string; onChange: (html: string) => void; label?: string; compact?: boolean; editable?: boolean };
 type Align = "left" | "center" | "right" | "justify";
 const symbols = ["×", "÷", "±", "√", "≈", "≠", "≤", "≥", "°", "∞", "α", "β", "γ", "Δ", "Ω", "→", "←", "↔"];
 
@@ -52,12 +52,13 @@ function Toolbar({ editor, compact }: { editor: Editor; compact: boolean }) {
   </div>;
 }
 
-export function RichTextEditor({ content, onChange, label, compact = false }: RichTextEditorProps) {
+export function RichTextEditor({ content, onChange, label, compact = false, editable = true }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit.configure({ heading: { levels: [1, 2, 3] }, link: { openOnClick: false, autolink: true } }), TextStyleKit, Highlight.configure({ multicolor: true }), TextAlign.configure({ types: ["heading", "paragraph"] }), Subscript.extend({ excludes: "superscript" }), Superscript.extend({ excludes: "subscript" }), TableKit.configure({ table: { resizable: true } }), Image.configure({ HTMLAttributes: { loading: "lazy" } })],
-    content, immediatelyRender: false, editorProps: { attributes: { class: `tiptap-content lesson-document-editor${compact ? " compact-editor" : ""}` } }, onUpdate: ({ editor: current }) => onChange(current.getHTML()),
+    content, editable, immediatelyRender: false, editorProps: { attributes: { class: `tiptap-content lesson-document-editor${compact ? " compact-editor" : ""}` } }, onUpdate: ({ editor: current }) => onChange(current.getHTML()),
   });
   useEffect(() => { if (editor && editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false }); }, [content, editor]);
+  useEffect(() => { editor?.setEditable(editable); }, [editable, editor]);
   if (!editor) return null;
   return <div className={`rich-editor${compact ? " rich-editor-compact" : ""}`}>{label && <p className="field-label">{label}</p>}<Toolbar editor={editor} compact={compact} /><EditorContent editor={editor} /></div>;
 }

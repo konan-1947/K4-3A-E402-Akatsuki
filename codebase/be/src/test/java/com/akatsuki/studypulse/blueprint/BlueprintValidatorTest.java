@@ -28,6 +28,16 @@ class BlueprintValidatorTest {
         assertFalse(validator.validate(blueprint, Set.of("concept_1"), Set.of()).path("valid").asBoolean());
     }
 
+    @Test
+    void acceptsDraftWhenAConceptIsNotCoveredAndReportsWarning() {
+        ObjectNode blueprint = baseBlock("sequence");
+
+        var report = validator.validate(blueprint, Set.of("concept_1", "concept_2"), Set.of());
+
+        assertTrue(report.path("valid").asBoolean());
+        assertTrue(report.path("warnings").toString().contains("Core concept is not covered: concept_2"));
+    }
+
     private ObjectNode baseBlock(String type) {
         ObjectNode blueprint = mapper.createObjectNode();
         ObjectNode block = blueprint.putArray("blocks").addObject();
