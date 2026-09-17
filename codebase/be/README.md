@@ -1,7 +1,24 @@
 # StudyPulse backend
 
-Backend Spring Boot chứa lớp gọi AI dùng chung. Hiện chưa có REST endpoint; bước tiếp theo có thể inject
-`AiClient` hoặc `@Qualifier("jsonAiClient") AiClient` vào use case tạo nội dung.
+Backend Spring Boot chứa lớp gọi AI dùng chung và pipeline tạo mental model từ nhiều file.
+
+## Mental model API
+
+Frontend upload nhiều file lên `POST /api/mental-model/runs` bằng multipart field `files` và có thể gửi thêm
+`topicInstruction`. API trả về `runId` để polling:
+
+```bash
+curl -X POST http://localhost:8080/api/mental-model/runs \
+  -F 'files=@./docs/architecture.md' \
+  -F 'files=@./docs/policy.pdf' \
+  -F 'topicInstruction=Giải thích ngắn gọn cho sinh viên năm nhất'
+
+curl http://localhost:8080/api/mental-model/runs/{runId}
+curl http://localhost:8080/api/mental-model/runs/{runId}/result
+```
+
+Job chạy nền và lưu artifact vào `runs/<runId>/`. V1 dùng in-memory job registry, nên job không được khôi phục
+nếu backend restart.
 
 ## Provider order
 

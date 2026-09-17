@@ -16,6 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Backend connection
+
+The source-selection step sends the selected files to the Spring Boot backend and polls the mental-model job.
+Set `NEXT_PUBLIC_BE_URL` when the backend is not running at the default local URL:
+
+```bash
+NEXT_PUBLIC_BE_URL=http://localhost:8080 npm run dev
+```
+
+Start the backend first and configure its AI keys in `codebase/be/.env`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

@@ -1,0 +1,11 @@
+MCP: Model Context Protocol, giao thức chuẩn hóa kết nối giữa AI client và server cung cấp năng lực.
+AI client: ứng dụng điều phối model, khám phá tool và gửi request.
+MCP server: server công bố tool, resource, prompt và thực thi kiểm tra quyền.
+Tool: một năng lực có tên, mô tả, schema input và quy tắc quyền.
+Resource: dữ liệu mà client có thể đọc thông qua server.
+Prompt: mẫu hướng dẫn được server công bố cho client sử dụng.
+Scope: phạm vi quyền được cấp cho một client hoặc user.
+Least privilege: chỉ cấp đúng quyền tối thiểu cần cho nhiệm vụ.
+Side effect: tác động làm thay đổi dữ liệu hoặc gây hành động bên ngoài.
+Confirmation token: bằng chứng người dùng đã xác nhận một hành động cụ thể.
+Audit log: log dùng để truy vết actor, tool, tham số, thời điểm và kết quả.
