@@ -5,7 +5,7 @@ import type { BlueprintBlock } from "./demo-provider";
 
 type Point = { x: number; y: number };
 type CanvasPan = { x: number; y: number };
-type Selected = number | "start" | "end" | null;
+type Selected = number | string | "start" | "end" | null;
 type NodeDrag = { target: Selected; offsetX: number; offsetY: number };
 type PanDrag = { startX: number; startY: number; startPan: CanvasPan };
 const documentSize = { width: 1160, height: 510 };
@@ -27,10 +27,11 @@ function edge(from: Point, to: Point, fromTerminal = false, toTerminal = false) 
   return { start: edgeAnchor(from, to, fromTerminal), end: edgeAnchor(to, from, toTerminal) };
 }
 
-export function LearningGraph({ blocks, onUpdateBlock, onViewBlock }: {
+export function LearningGraph({ blocks, edges: graphEdges = [], onUpdateBlock, onViewBlock }: {
   blocks: BlueprintBlock[];
-  onUpdateBlock: (id: number, changes: Partial<BlueprintBlock>) => void;
-  onViewBlock: (id: number) => void;
+  edges?: { from: string; to: string; type: string; rationale?: string }[];
+  onUpdateBlock: (id: number | string, changes: Partial<BlueprintBlock>) => void;
+  onViewBlock: (id: number | string) => void;
 }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<Selected>(null);
@@ -41,6 +42,13 @@ export function LearningGraph({ blocks, onUpdateBlock, onViewBlock }: {
   const [start, setStart] = useState<Point>({ x: 56, y: 255 });
   const [end, setEnd] = useState<Point>({ x: 1104, y: 255 });
   const nodes = useMemo(() => blocks.map((block, index) => { const origin = defaultPosition(block, index); return { block, origin, center: { x: origin.x + card.width / 2, y: origin.y + card.height / 2 } }; }), [blocks]);
+  // Older/generated drafts can omit `edges`. Keep the graph readable by showing
+  // its displayed block order as a sequence until the backend provides edges.
+  const visibleEdges = useMemo(() => {
+    const ids = new Set(blocks.map((block) => String(block.id)));
+    const valid = graphEdges.filter((item) => ids.has(String(item.from)) && ids.has(String(item.to)));
+    return valid.length > 0 ? valid : blocks.slice(1).map((block, index) => ({ from: String(blocks[index].id), to: String(block.id), type: "next" }));
+  }, [blocks, graphEdges]);
 
   // React's wheel listener may be passive on some touchpad/browser combinations.
   // Use a native non-passive listener so pinch never escapes to page/browser zoom.
@@ -73,7 +81,7 @@ export function LearningGraph({ blocks, onUpdateBlock, onViewBlock }: {
       const x = point.x - nodeDrag.offsetX; const y = point.y - nodeDrag.offsetY;
       if (nodeDrag.target === "start") setStart({ x, y });
       else if (nodeDrag.target === "end") setEnd({ x, y });
-      else if (typeof nodeDrag.target === "number") onUpdateBlock(nodeDrag.target, { x, y });
+      else if (typeof nodeDrag.target === "number" || typeof nodeDrag.target === "string") onUpdateBlock(nodeDrag.target, { x, y });
     };
     const stop = () => setNodeDrag(null);
     window.addEventListener("pointermove", move); window.addEventListener("pointerup", stop);
@@ -97,7 +105,7 @@ export function LearningGraph({ blocks, onUpdateBlock, onViewBlock }: {
     <header className="learning-editor-bar"><div><p className="field-label">LEARNING GRAPH EDITOR</p><strong>Drag node · chuột phải hoặc cuộn giữa để pan · Ctrl + lăn chuột để zoom</strong></div><div><button type="button" className="zoom-control" onClick={() => setZoom((value) => Math.max(.5, value - .1))}>−</button><button type="button" className="zoom-readout" onClick={resetView}>{Math.round(zoom * 100)}%</button><button type="button" className="zoom-control" onClick={() => setZoom((value) => Math.min(1.6, value + .1))}>+</button></div></header>
     <div className="learning-workspace"><div className={`learning-canvas-viewport${panDrag ? " is-panning" : ""}`} ref={viewportRef} onPointerDown={canvasDown} onContextMenu={(event) => event.preventDefault()}>
       <div className="learning-canvas learning-canvas-editable" style={{ width: documentSize.width, height: documentSize.height, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
-        <svg className="learning-edges" viewBox={`0 0 ${documentSize.width} ${documentSize.height}`} aria-hidden="true"><defs><marker id="learning-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M 0 0 L 8 4 L 0 8 z" /></marker></defs>{nodes.length > 0 && (() => { const line = edge(start, nodes[0].center, true); return <line x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y} markerEnd="url(#learning-arrow)" />; })()}{nodes.slice(0, -1).map((node, index) => { const line = edge(node.center, nodes[index + 1].center); return <line key={`${node.block.id}-${nodes[index + 1].block.id}`} x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y} markerEnd="url(#learning-arrow)" />; })}{nodes.length > 0 && (() => { const line = edge(nodes.at(-1)!.center, end, false, true); return <line x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y} markerEnd="url(#learning-arrow)" />; })()}</svg>
+        <svg className="learning-edges" viewBox={`0 0 ${documentSize.width} ${documentSize.height}`} aria-hidden="true"><defs><marker id="learning-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M 0 0 L 8 4 L 0 8 z" /></marker></defs>{nodes.length > 0 && (() => { const line = edge(start, nodes[0].center, true); return <line x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y} markerEnd="url(#learning-arrow)" />; })()}{visibleEdges.map((item) => { const from = nodes.find((node) => String(node.block.id) === item.from); const to = nodes.find((node) => String(node.block.id) === item.to); if (!from || !to) return null; const line = edge(from.center, to.center); return <line key={`${item.from}-${item.to}-${item.type}`} x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y} markerEnd="url(#learning-arrow)" />; })}{nodes.length > 0 && (() => { const line = edge(nodes.at(-1)!.center, end, false, true); return <line x1={line.start.x} y1={line.start.y} x2={line.end.x} y2={line.end.y} markerEnd="url(#learning-arrow)" />; })()}</svg>
         <button type="button" className={`learning-terminal learning-start${selected === "start" ? " is-selected" : ""}`} style={{ left: start.x - 22, top: start.y - 22 }} onPointerDown={(event) => startDrag(event, "start", start)}><i /><span>Bắt đầu</span></button>
         {nodes.map(({ block, origin }, index) => <div className={`learning-node${selected === block.id ? " is-selected" : ""}`} key={block.id} style={{ left: origin.x, top: origin.y }} onPointerDown={(event) => startDrag(event, block.id, origin)}><span>{String(index + 1).padStart(2, "0")}</span><b>{block.title || "Learning block"}</b><small>{block.type || "text"}</small><button className="learning-node-view" type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => onViewBlock(block.id)}>Xem ↓</button><i className="node-connector" aria-hidden="true" /></div>)}
         <button type="button" className={`learning-terminal learning-end${selected === "end" ? " is-selected" : ""}`} style={{ left: end.x - 22, top: end.y - 22 }} onPointerDown={(event) => startDrag(event, "end", end)}><i /><span>Kết thúc</span></button>

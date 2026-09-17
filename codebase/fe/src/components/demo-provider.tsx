@@ -3,29 +3,40 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
 export type Upload = { id: string; name: string; type: string; size: string };
-export type BlueprintBlock = { id: number; title: string; type: string; content: string; x?: number; y?: number };
+export type BlueprintContentBrief = { overview: string; writing_outline: string[]; learner_action: string; evidence_of_learning: string; checkpoint: string; transition: string; needs_input?: boolean; open_question?: string };
+export type BlueprintAssetPlan = { kind: "image" | "diagram" | "simulation_html"; purpose?: string; prompt?: string; composition?: string; required_elements?: string; caption?: string; alt_text?: string; diagram_type?: string; participants?: string; flow?: string; required_labels?: string; initial_state?: string; interface?: string; interactions?: string; feedback?: string; completion_criteria?: string };
+export type BlueprintBlock = { id: number | string; title: string; type: string; content: string; content_brief?: BlueprintContentBrief; asset_plan?: BlueprintAssetPlan[]; concept_ids?: string[]; resource_plan?: { type: string; chunk_id?: string; brief?: string; reason?: string }[]; x?: number; y?: number };
 type LoadingStep = "mental" | "blueprint" | "lesson" | null;
 export type MentalJobStatus = "IDLE" | "QUEUED" | "RUNNING" | "SUCCEEDED" | "FAILED";
 export type MentalConnection = "LIVE" | "RECONNECTING";
-type DemoState = { mentalGenerated: boolean; mentalApproved: boolean; mentalRunId: string | null; mentalStatus: MentalJobStatus; mentalProgress: number; mentalTotal: number; mentalStage: string; mentalError: string | null; mentalPollingError: string | null; mentalConnection: MentalConnection; mentalStartedAt: string | null; mentalLastSeenAt: string | null; blueprintGenerated: boolean; blueprintApproved: boolean; lessonGenerated: boolean; articleEdited: boolean; published: boolean };
-type PersistedState = DemoState & { uploads: Upload[]; topicInstruction: string; mentalModel: string; blueprint: BlueprintBlock[]; article: string };
+type DemoState = { mentalGenerated: boolean; mentalApproved: boolean; mentalRunId: string | null; mentalStatus: MentalJobStatus; mentalProgress: number; mentalTotal: number; mentalStage: string; mentalError: string | null; mentalPollingError: string | null; mentalConnection: MentalConnection; mentalStartedAt: string | null; mentalLastSeenAt: string | null; blueprintGenerated: boolean; blueprintApproved: boolean; blueprintError: string | null; lessonGenerated: boolean; articleEdited: boolean; published: boolean };
+type PersistedState = DemoState & { uploads: Upload[]; topicInstruction: string; mentalModel: string; mentalModelHtml: string; blueprint: BlueprintBlock[]; blueprintRaw: Record<string, unknown> | null; blueprintEdges: { from: string; to: string; type: string; rationale?: string }[]; article: string };
 type DemoContextValue = PersistedState & {
   hydrated: boolean; loading: LoadingStep; generate: (step: Exclude<LoadingStep, null>) => void;
-  approveMental: () => void; approveBlueprint: () => void; markArticleEdited: () => void; publish: () => void; reset: () => void;
+  approveMental: () => Promise<boolean>; approveBlueprint: () => Promise<boolean>; markArticleEdited: () => void; publish: () => void; reset: () => void;
   addFiles: (files: File[]) => void; removeUpload: (id: string) => void; startMentalModel: () => Promise<void>;
-  setUploads: Dispatch<SetStateAction<Upload[]>>; setTopicInstruction: Dispatch<SetStateAction<string>>; setMentalModel: Dispatch<SetStateAction<string>>;
-  setBlueprint: Dispatch<SetStateAction<BlueprintBlock[]>>; setArticle: Dispatch<SetStateAction<string>>;
+  setUploads: Dispatch<SetStateAction<Upload[]>>; setTopicInstruction: Dispatch<SetStateAction<string>>; setMentalModel: Dispatch<SetStateAction<string>>; setMentalModelHtml: Dispatch<SetStateAction<string>>;
+  setBlueprint: Dispatch<SetStateAction<BlueprintBlock[]>>; setArticle: Dispatch<SetStateAction<string>>; startBlueprint: () => Promise<void>; saveBlueprint: () => Promise<boolean>;
 };
 
 const STORAGE_KEY = "studypulse:lesson-workflow";
 const BACKEND_URL = process.env.NEXT_PUBLIC_BE_URL ?? "http://localhost:8080";
 const articleSeed = "<h2>MCP là bộ điều phối có cổng kiểm soát.</h2><p>Khi một AI cần truy cập lịch, tài liệu hay hệ thống nội bộ, rủi ro không nằm ở việc AI có thể gọi tool hay không. Rủi ro nằm ở việc ai định nghĩa tool đó, AI được phép gọi đến đâu và người dùng có nhìn thấy điều gì đang diễn ra hay không.</p><p><strong>Model Context Protocol (MCP)</strong> tạo một giao thức chung để ứng dụng AI kết nối với những năng lực được công bố một cách có cấu trúc.</p><h2>1. Bốn vai trò trong một request</h2><p><strong>Học viên/người dùng</strong> nêu mục tiêu. <strong>AI client</strong> hiểu yêu cầu và quyết định có cần tool hay không. <strong>MCP server</strong> công bố các tool, resource hoặc prompt mà nó hỗ trợ.</p><h2>2. Ví dụ: tìm lịch trống</h2><p>AI client không nên đoán lịch. Client hỏi MCP server những tool đang có, nhận lại mô tả <code>calendar.read</code>, rồi gọi tool này với khoảng thời gian cần đọc.</p><h2>Tóm tắt</h2><p>MCP là cách chuẩn hoá để AI sử dụng đúng năng lực, trong đúng phạm vi và với đường đi có thể kiểm tra.</p>";
 
+const text = (value: unknown) => typeof value === "string" ? value : "";
+const asHtml = (value: string) => value.includes("<") ? value : value ? `<p>${value}</p>` : "<p></p>";
+function contentBrief(block: Record<string, unknown>): BlueprintContentBrief {
+  const value = block.content_brief as Record<string, unknown> | undefined;
+  return { overview: asHtml(text(value?.overview) || text(block.purpose) || text(block.objective)), writing_outline: Array.isArray(value?.writing_outline) ? value.writing_outline.map(text).filter(Boolean) : [], learner_action: text(value?.learner_action) || text(block.learner_action), evidence_of_learning: text(value?.evidence_of_learning) || text(block.evidence_of_learning), checkpoint: text(value?.checkpoint) || text(block.checkpoint), transition: text(value?.transition) || text(block.transition), needs_input: value?.needs_input === true, open_question: text(value?.open_question) };
+}
+function assetPlan(block: Record<string, unknown>): BlueprintAssetPlan[] { return Array.isArray(block.asset_plan) ? block.asset_plan.filter((item): item is BlueprintAssetPlan => !!item && typeof item === "object" && ["image", "diagram", "simulation_html"].includes(text((item as Record<string, unknown>).kind))).map((item) => item as BlueprintAssetPlan) : []; }
+
 export const initialWorkflow: PersistedState = {
-  mentalGenerated: false, mentalApproved: false, mentalRunId: null, mentalStatus: "IDLE", mentalProgress: 0, mentalTotal: 0, mentalStage: "IDLE", mentalError: null, mentalPollingError: null, mentalConnection: "LIVE", mentalStartedAt: null, mentalLastSeenAt: null, blueprintGenerated: false, blueprintApproved: false, lessonGenerated: false, articleEdited: false, published: false,
+  mentalGenerated: false, mentalApproved: false, mentalRunId: null, mentalStatus: "IDLE", mentalProgress: 0, mentalTotal: 0, mentalStage: "IDLE", mentalError: null, mentalPollingError: null, mentalConnection: "LIVE", mentalStartedAt: null, mentalLastSeenAt: null, blueprintGenerated: false, blueprintApproved: false, blueprintError: null, lessonGenerated: false, articleEdited: false, published: false,
   uploads: [],
   topicInstruction: "",
   mentalModel: "",
+  mentalModelHtml: "",
   blueprint: [
     { id: 1, title: "Mental model", type: "text + image", content: "<p>Đặt khung tư duy trung tâm trước khi đi vào chi tiết.</p>" },
     { id: 2, title: "Luồng MCP", type: "sequence diagram", content: "<p>Client kết nối server, khám phá tool rồi gọi đúng phạm vi.</p>" },
@@ -33,6 +44,7 @@ export const initialWorkflow: PersistedState = {
     { id: 4, title: "Mô phỏng", type: "interactive diagram", content: "<p>Hiện dần message của sequence diagram theo từng nút bấm.</p>" },
     { id: 5, title: "Checkpoint", type: "question", content: "<p>Kiểm tra nguyên tắc quyền tối thiểu.</p>" },
   ],
+  blueprintRaw: null, blueprintEdges: [],
   article: articleSeed,
 };
 
@@ -86,7 +98,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         if (status.status === "SUCCEEDED") {
           const resultResponse = await fetch(`${BACKEND_URL}/api/mental-model/runs/${runId}/result`, { signal: controller.signal, cache: "no-store" });
           if (!resultResponse.ok) throw new Error(`Không lấy được kết quả, HTTP ${resultResponse.status}`);
-          const result = await resultResponse.json() as { renderedHtml: string };
+          const result = await resultResponse.json() as { renderedHtml: string; mentalModel: unknown };
           if (!cancelled) {
             setState((current) => ({
               ...current,
@@ -99,7 +111,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               mentalConnection: "LIVE",
               mentalLastSeenAt: new Date().toISOString(),
               mentalGenerated: true,
-              mentalModel: result.renderedHtml,
+              // Canonical input is JSON; keep it editable/persisted, HTML is only a fallback preview.
+              mentalModel: JSON.stringify(result.mentalModel ?? { explanation: result.renderedHtml }, null, 2),
+              mentalModelHtml: result.renderedHtml,
             }));
           }
           return;
@@ -155,10 +169,51 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       setState((current) => ({ ...current, mentalStatus: "FAILED", mentalStage: "FAILED", mentalError: error instanceof Error ? error.message : "Không thể upload file", mentalConnection: "LIVE" }));
     }
   }, [state.topicInstruction]);
+  const startBlueprint = useCallback(async () => {
+    if (!state.mentalRunId) return;
+    setLoading("blueprint");
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/mental-model/runs/${state.mentalRunId}/blueprint`, { method: "POST" });
+      // A second mount/navigation can encounter the same active job. Resume it.
+      let status: { status: string };
+      if (response.status === 409) {
+        const current = await fetch(`${BACKEND_URL}/api/mental-model/runs/${state.mentalRunId}/blueprint`, { cache: "no-store" });
+        if (!current.ok) throw new Error("Blueprint job đang chạy nhưng không thể khôi phục tiến độ.");
+        status = await current.json() as { status: string };
+      } else {
+        if (!response.ok) throw new Error(`Không thể tạo blueprint, HTTP ${response.status}`);
+        status = await response.json() as { status: string };
+      }
+      for (let tries = 0; status.status === "QUEUED" || status.status === "RUNNING"; tries += 1) {
+        if (tries > 90) throw new Error("Tạo blueprint quá thời gian chờ");
+        await new Promise((resolve) => window.setTimeout(resolve, 1000));
+        const poll = await fetch(`${BACKEND_URL}/api/mental-model/runs/${state.mentalRunId}/blueprint`, { cache: "no-store" });
+        if (!poll.ok) throw new Error(`Không lấy được tiến độ blueprint, HTTP ${poll.status}`);
+        status = await poll.json() as { status: string };
+      }
+      if (status.status !== "SUCCEEDED") throw new Error("Blueprint generation failed");
+      const draftResponse = await fetch(`${BACKEND_URL}/api/mental-model/runs/${state.mentalRunId}/blueprint/draft`, { cache: "no-store" });
+      if (!draftResponse.ok) throw new Error("Không lấy được blueprint draft");
+      const raw = await draftResponse.json() as { blocks?: Record<string, unknown>[]; edges?: { from: string; to: string; type: string; rationale?: string }[] };
+      const blocks = (raw.blocks ?? []).map((block, index) => { const brief = contentBrief(block); return { ...block, id: String(block.id ?? index + 1), title: String(block.title ?? "Learning block"), type: String(block.type ?? "explanation"), content: brief.overview, content_brief: brief, asset_plan: assetPlan(block), concept_ids: Array.isArray(block.concept_ids) ? block.concept_ids.map(String) : [], resource_plan: Array.isArray(block.resource_plan) ? block.resource_plan as BlueprintBlock["resource_plan"] : [] }; }) as BlueprintBlock[];
+      setState((current) => ({ ...current, blueprintGenerated: true, blueprintError: null, blueprint: blocks, blueprintRaw: raw, blueprintEdges: raw.edges ?? [] }));
+    } catch (error) { setState((current) => ({ ...current, mentalError: error instanceof Error ? error.message : "Không thể tạo blueprint" })); }
+    finally { setLoading(null); }
+  }, [state.mentalRunId]);
+  const saveBlueprint = useCallback(async () => {
+    if (!state.mentalRunId || !state.blueprintRaw) return false;
+    const raw = { ...state.blueprintRaw, blocks: state.blueprint.map(({ content, content_brief, ...block }) => ({ ...block, purpose: content, content_brief: { writing_outline: [], learner_action: "", evidence_of_learning: "", checkpoint: "", transition: "", ...content_brief, overview: content } })), edges: state.blueprintEdges };
+    const response = await fetch(`${BACKEND_URL}/api/mental-model/runs/${state.mentalRunId}/blueprint/draft`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(raw) });
+    if (!response.ok) { setState((current) => ({ ...current, blueprintError: "Không thể lưu blueprint." })); return false; }
+    const report = await response.json() as { valid?: boolean; errors?: string[] };
+    const blueprintError = report.valid ? null : (report.errors ?? ["Blueprint chưa đủ dữ liệu để duyệt."]).join(" · ");
+    setState((current) => ({ ...current, blueprintError }));
+    return true;
+  }, [state.mentalRunId, state.blueprintRaw, state.blueprint, state.blueprintEdges]);
   const value = useMemo<DemoContextValue>(() => ({
     ...state, hydrated, loading, generate,
-    approveMental: () => setState((current) => ({ ...current, mentalApproved: true })),
-    approveBlueprint: () => setState((current) => ({ ...current, blueprintApproved: true })),
+    approveMental: async () => { if (!state.mentalRunId) return false; try { const response = await fetch(`${BACKEND_URL}/api/mental-model/runs/${state.mentalRunId}/approve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: state.mentalModel }); if (!response.ok) throw new Error("Mental model không hợp lệ"); setState((current) => ({ ...current, mentalApproved: true })); return true; } catch (error) { setState((current) => ({ ...current, mentalError: error instanceof Error ? error.message : "Không thể duyệt mental model" })); return false; } },
+    approveBlueprint: async () => { if (!await saveBlueprint() || !state.mentalRunId) return false; const response = await fetch(`${BACKEND_URL}/api/mental-model/runs/${state.mentalRunId}/blueprint/approve`, { method: "POST" }); if (response.ok) { setState((current) => ({ ...current, blueprintApproved: true, blueprintError: null })); return true; } const message = await response.text(); setState((current) => ({ ...current, blueprintError: message || "Blueprint chưa đủ dữ liệu để duyệt." })); return false; },
     markArticleEdited: () => setState((current) => ({ ...current, articleEdited: true })),
     publish: () => setState((current) => ({ ...current, published: true })),
     reset: () => { sessionStorage.removeItem(STORAGE_KEY); generationRef.current = null; filesRef.current = []; setLoading(null); setState(initialWorkflow); },
@@ -166,9 +221,10 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setUploads: (update) => setState((current) => ({ ...current, uploads: typeof update === "function" ? update(current.uploads) : update })),
     setTopicInstruction: (update) => setState((current) => ({ ...current, topicInstruction: typeof update === "function" ? update(current.topicInstruction) : update })),
     setMentalModel: (update) => setState((current) => ({ ...current, mentalModel: typeof update === "function" ? update(current.mentalModel) : update })),
+    setMentalModelHtml: (update) => setState((current) => ({ ...current, mentalModelHtml: typeof update === "function" ? update(current.mentalModelHtml) : update })),
     setBlueprint: (update) => setState((current) => ({ ...current, blueprint: typeof update === "function" ? update(current.blueprint) : update })),
-    setArticle: (update) => setState((current) => ({ ...current, article: typeof update === "function" ? update(current.article) : update })),
-  }), [state, hydrated, loading, generate, addFiles, removeUpload, startMentalModel]);
+    setArticle: (update) => setState((current) => ({ ...current, article: typeof update === "function" ? update(current.article) : update })), startBlueprint, saveBlueprint,
+  }), [state, hydrated, loading, generate, addFiles, removeUpload, startMentalModel, startBlueprint, saveBlueprint]);
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;
 }
 

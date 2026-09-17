@@ -82,11 +82,37 @@ public class MentalModelJobService {
         return job.result;
     }
 
+    /** Stores the coach-approved canonical input. HTML is deliberately never used downstream. */
+    public JsonNode approve(String runId, JsonNode mentalModel) throws IOException {
+        Path run = runsDirectory.resolve(runId);
+        if (!Files.exists(run.resolve("mental-model.json"))) throw new IllegalArgumentException("Mental model is not ready");
+        JsonNode report = validator.validate(mentalModel, mapper.createObjectNode());
+        var approved = mapper.createObjectNode();
+        approved.put("runId", runId);
+        approved.put("revision", Instant.now().toEpochMilli());
+        approved.put("approvedAt", Instant.now().toString());
+        approved.set("mentalModel", mentalModel);
+        approved.set("validation", report);
+        writeJson(run.resolve("approved-mental-model.json"), approved);
+        // Keep the user instruction durable even if the in-memory job is gone after restart.
+        var metadata = mapper.createObjectNode();
+        Job existing = jobs.get(runId);
+        String instruction = existing == null && Files.exists(run.resolve("run-metadata.json"))
+                ? mapper.readTree(Files.readString(run.resolve("run-metadata.json"))).path("topicInstruction").asText("")
+                : existing == null ? "" : existing.topicInstruction;
+        metadata.put("topicInstruction", instruction);
+        writeJson(run.resolve("run-metadata.json"), metadata);
+        return approved;
+    }
+
     private void process(Job job, List<UploadedDocument> documents) {
         try {
             Path runDirectory = runsDirectory.resolve(job.runId);
             Path inputDirectory = runDirectory.resolve("input");
             Files.createDirectories(inputDirectory);
+            var metadata = mapper.createObjectNode();
+            metadata.put("topicInstruction", job.topicInstruction);
+            writeJson(runDirectory.resolve("run-metadata.json"), metadata);
             List<DocumentManifest> manifests = saveInputs(documents, inputDirectory);
             writeJson(runDirectory.resolve("manifest.json"), manifests);
 

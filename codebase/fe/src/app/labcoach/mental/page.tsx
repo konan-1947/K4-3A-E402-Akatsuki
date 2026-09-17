@@ -34,6 +34,14 @@ function stageProgressLabel(status: MentalJobStatus, stage: string, progress: nu
   return "Đang xử lý";
 }
 
+function previewFromCanonical(value: string) {
+  try {
+    const model = JSON.parse(value) as Record<string, unknown>;
+    const text = (key: string) => typeof model[key] === "string" ? model[key] : "";
+    return `<h2>${text("title") || "Mental model"}</h2><p><strong>Ý tưởng cốt lõi:</strong> ${text("core_idea") || text("oneSentence")}</p><h3>Phạm vi</h3><p>${text("scope")}</p><h3>Mục đích</h3><p>${text("purpose")}</p><h3>Giải thích</h3><p>${text("explanation")}</p>`;
+  } catch { return "<p>Không thể khôi phục bản nháp. Hãy chạy lại mental model.</p>"; }
+}
+
 function RunProgressCard() {
   const demo = useDemo();
   const [now, setNow] = useState(() => Date.now());
@@ -73,12 +81,12 @@ function RunProgressCard() {
 export default function MentalModelPage() {
   const router = useRouter();
   const demo = useDemo();
-  const approve = () => { demo.approveMental(); router.push("/labcoach/outline"); };
+  const approve = async () => { if (await demo.approveMental()) router.push("/labcoach/outline"); };
   return <WorkflowScreen step={2} title="Mental model"><GuardStep allowed={demo.uploads.length > 0} fallback="/labcoach">
     <section className="wizard-intro"><p className="eyebrow">BƯỚC 02 · AI ANALYSIS</p><h2>Tạo một cách hiểu chung từ các nguồn đã chọn.</h2><p>AI dựng bản nháp mental model. Lab coach xem, chỉnh sửa và duyệt bản này trước khi bắt đầu thiết kế cấu trúc lesson.</p></section>
     <section className="studio-section single-step"><div className="section-kicker"><span>02</span><p>Mental model</p><i className={demo.mentalApproved ? "status status-active" : "status"}>{demo.mentalApproved ? "ĐÃ DUYỆT" : demo.mentalGenerated ? "BẢN NHÁP" : demo.mentalStatus}</i></div>
       <div className="stage-layout"><div className="stage-main"><div className="source-summary"><p className="field-label">NGUỒN ĐANG PHÂN TÍCH · {demo.uploads.length}</p><div>{demo.uploads.map((file) => <span key={file.id}>{file.name}</span>)}</div><Link href="/labcoach" className="text-button">← Chỉnh nguồn</Link></div>
-        {demo.mentalStatus === "FAILED" ? <div className="generate-card failure-card"><span>!</span><div><h3>Không thể tạo mental model</h3><p>{demo.mentalError}</p><div className="failure-actions"><button className="secondary-button" onClick={() => void demo.startMentalModel()}>Thử lại</button><Link className="primary-button inline-button" href="/labcoach">Chọn lại nguồn →</Link></div></div></div> : !demo.mentalGenerated ? <RunProgressCard /> : <div className="editor-stack"><RichTextEditor label="MENTAL MODEL" content={demo.mentalModel} onChange={demo.setMentalModel} /><div className="step-actions"><span>Kiểm tra khái niệm trung tâm, liên hệ và bằng chứng nguồn trước khi duyệt.</span><button className="primary-button" disabled={demo.mentalApproved} onClick={approve}>{demo.mentalApproved ? "✓ Đã duyệt" : "Duyệt & tiếp tục →"}</button></div></div>}</div><Guide steps={["Đọc các nguồn AI đang dùng.", "Theo dõi các lớp phân tích.", "Duyệt mental model khi kết quả sẵn sàng."]} /></div>
+        {demo.mentalStatus === "FAILED" ? <div className="generate-card failure-card"><span>!</span><div><h3>Không thể tạo mental model</h3><p>{demo.mentalError}</p><div className="failure-actions"><button className="secondary-button" onClick={() => void demo.startMentalModel()}>Thử lại</button><Link className="primary-button inline-button" href="/labcoach">Chọn lại nguồn →</Link></div></div></div> : !demo.mentalGenerated ? <RunProgressCard /> : <div className="editor-stack"><RichTextEditor label="MENTAL MODEL" content={demo.mentalModelHtml || previewFromCanonical(demo.mentalModel)} onChange={demo.setMentalModelHtml} /><div className="step-actions"><span>Chỉnh bản nháp trong một editor; JSON canonical được giữ ở hậu trường để sinh blueprint.</span><button className="primary-button" disabled={demo.mentalApproved} onClick={approve}>{demo.mentalApproved ? "✓ Đã duyệt" : "Duyệt & tiếp tục →"}</button></div></div>}</div><Guide steps={["Đọc các nguồn AI đang dùng.", "Chỉnh mental model trong editor.", "Duyệt khi bản đồ kiến thức đã đúng."]} /></div>
     </section>
   </GuardStep></WorkflowScreen>;
 }
