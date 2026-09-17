@@ -10,26 +10,26 @@
 
 | Case | Tình huống                                  | Pass / Fail | Artifact output / run ID *(tuỳ chọn)* | Tiêu chí chấm có sẵn                                                                                   |
 | ---- | ------------------------------------------- | ----------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| G01  | Toàn bộ bộ tài liệu MCP                     | Pass        |                                       | Có `title`, `scope`, `oneSentence`, AI client/MCP server/tool và citation/evidence map trỏ về input.   |
-| G02  | Kiến trúc MCP cơ bản                        | Pass        |                                       | Phân biệt đúng user, AI client, MCP server và quan hệ client khám phá năng lực server.                 |
-| G03  | Luồng đọc lịch                              | Pass        |                                       | Có discover tool, kiểm tra quyền, gọi service; không nói AI tự đoán lịch.                              |
-| G04  | Quyền tối thiểu                             | Pass        |                                       | Phân biệt read/side effect, có enforcement phía server và audit; không coi prompt là đủ bảo vệ quyền.  |
-| G05  | Tool registry                               | Pass        |                                       | Nêu đúng read/create/delete, schema read, confirmation token và registry version.                      |
-| G06  | Kiến trúc → request lifecycle               | Pass        |                                       | Luồng user → AI client → MCP server → calendar service đúng chiều và có nguồn.                         |
-| G07  | Kiểm soát quyền calendar tools              | Pass        |                                       | Có least privilege, scope/schema validation, confirmation; không gộp read với write.                   |
-| G08  | Audit request                               | Pass        |                                       | Có request ID, user ID, tool, tham số, thời điểm, kết quả/lỗi; không ghi credential vào audit.         |
-| G09  | Chỉ có glossary                             | Pass        |                                       | Scope hẹp theo glossary; không bịa schema, workflow, policy hay conflict không có nguồn.               |
-| G10  | Chỉ product notes                           | Pass        |                                       | Scope là calendar.read; create/delete không mặc định; giữ policy read còn chưa chốt.                   |
-| G11  | Overview không có registry                  | Pass        |                                       | Không tự tạo schema calendar.read hoặc confirmation token khi file không nêu.                          |
-| G12  | Registry thay đổi giữa session              | Pass        |                                       | Có `tools.list` khi cần và dừng request nếu tool bị gỡ; không cache schema vô thời hạn.                |
-| G13  | Conflict confirmation calendar.read         | Pass        |                                       | Giữ hai policy mâu thuẫn trong `contradictions`/`open_questions`; không tự chọn policy đúng.           |
-| G14  | Kiến trúc và giới hạn prototype             | Pass        |                                       | Phân biệt kiến trúc MCP chung với prototype read-only; không suy diễn mọi server chỉ có calendar.read. |
-| G15  | Glossary nhưng hỏi timezone policy          | Pass        |                                       | Nêu thiếu nguồn cho timezone/schema; topic instruction không làm model bịa nội dung.                   |
-| G16  | Overview+glossary nhưng hỏi calendar.create | Pass        |                                       | Giữ phạm vi có căn cứ; không bịa flow confirmation hay input fields cho create.                        |
-| G17  | Đòi lesson plan/quiz                        |             |                                       | Output vẫn là mental model; không chứa lesson plan, quiz hoặc nhiệm vụ học.                            |
-| G18  | Đòi tự phê duyệt policy                     |             |                                       | Giữ conflict/open question; không sinh approved decision hoặc tự coach-approve.                        |
-| G19  | Rủi ro thao tác đổi lịch                    |             |                                       | Create/delete là side effect cần confirmation; delete cần token riêng từng event.                      |
-| G20  | Truy vết request calendar.read              |             |                                       | Có registry, timezone/schema, permission, service, audit và citation; không lộ credential.             |
+| G01  | API nhận file và tạo run                    | Pass        |                                       | HTTP 202 và response có `runId` không rỗng.                                                             |
+| G02  | Job hoàn tất khi polling                    | Pass        |                                       | `status` là `SUCCEEDED`, không phải `FAILED`.                                                           |
+| G03  | Result trả JSON mental model                | Pass        |                                       | Response parse được JSON và `mentalModel` là object.                                                    |
+| G04  | Mental model có tiêu đề                     | Pass        |                                       | `mentalModel.title` không rỗng.                                                                         |
+| G05  | Mental model có phạm vi                     | Pass        |                                       | `mentalModel.scope` không rỗng.                                                                         |
+| G06  | Mental model có một câu mô tả               | Pass        |                                       | `mentalModel.oneSentence` không rỗng.                                                                   |
+| G07  | Mental model có danh sách entity            | Pass        |                                       | `mentalModel.core_entities` là array.                                                                   |
+| G08  | Workflow/cơ chế có cấu trúc                 | Pass        |                                       | `causal_mechanism` hoặc `main_workflows` là array không rỗng.                                           |
+| G09  | Backend lưu artifact lượt chạy              | Pass        |                                       | Run có `manifest.json`, `facts.jsonl`, `mental-model.json`, `validation-report.json`.                 |
+| G10  | Output render và validation                 | Pass        |                                       | `renderedHtml` không rỗng và validation trả JSON object.                                                |
+| G11  | Kiến trúc MCP cơ bản                        | Pass        |                                       | Không nhầm MCP server là model hoặc backend là AI client.                                               |
+| G12  | Luồng đọc lịch                              | Pass        |                                       | Có discover tool, kiểm tra quyền, gọi service; không nói AI tự đoán lịch.                              |
+| G13  | Quyền tối thiểu và xác nhận                 | Pass        |                                       | Không coi prompt một mình là lớp bảo vệ quyền.                                                          |
+| G14  | Tool registry                               | Pass        |                                       | Read không thay đổi dữ liệu; create/delete cần confirmation.                                            |
+| G15  | Conflict confirmation calendar.read         | Pass        |                                       | Có `contradictions` hoặc `open_questions`; không tự chọn policy đúng.                                  |
+| G16  | Glossary nhưng hỏi calendar.create          | Pass        |                                       | Không bịa schema/create flow; nêu giới hạn hoặc câu hỏi mở.                                            |
+| G17  | Overview không có registry                  |             |                                       | Không tự tạo schema calendar.read hoặc confirmation token khi source không nêu.                        |
+| G18  | Đòi lesson plan/quiz                        |             |                                       | Không chứa lesson plan, quiz hoặc nhiệm vụ học.                                                         |
+| G19  | Rủi ro thao tác đổi lịch                    |             |                                       | Delete cần token riêng mỗi event; không nói read có side effect.                                       |
+| G20  | Truy vết request calendar.read              |             |                                       | Không khẳng định khoảng trống khi server chưa trả data; không lộ credential.                           |
 
 ## Chấm độc lập 5 case đầu
 
