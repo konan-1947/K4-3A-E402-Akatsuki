@@ -23,7 +23,9 @@ type DemoContextValue = PersistedState & {
 };
 
 const STORAGE_KEY = "studypulse:lesson-workflow";
-const BACKEND_URL = process.env.NEXT_PUBLIC_BE_URL ?? "http://localhost:8080";
+// This value is embedded in the browser bundle at build time. Set
+// NEXT_PUBLIC_BE_URL in the deployment environment, not only at runtime.
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BE_URL?.trim() || "http://localhost:8080").replace(/\/+$/, "");
 const articleSeed = "<h2>MCP là bộ điều phối có cổng kiểm soát.</h2><p>Khi một AI cần truy cập lịch, tài liệu hay hệ thống nội bộ, rủi ro không nằm ở việc AI có thể gọi tool hay không. Rủi ro nằm ở việc ai định nghĩa tool đó, AI được phép gọi đến đâu và người dùng có nhìn thấy điều gì đang diễn ra hay không.</p><p><strong>Model Context Protocol (MCP)</strong> tạo một giao thức chung để ứng dụng AI kết nối với những năng lực được công bố một cách có cấu trúc.</p><h2>1. Bốn vai trò trong một request</h2><p><strong>Học viên/người dùng</strong> nêu mục tiêu. <strong>AI client</strong> hiểu yêu cầu và quyết định có cần tool hay không. <strong>MCP server</strong> công bố các tool, resource hoặc prompt mà nó hỗ trợ.</p><h2>2. Ví dụ: tìm lịch trống</h2><p>AI client không nên đoán lịch. Client hỏi MCP server những tool đang có, nhận lại mô tả <code>calendar.read</code>, rồi gọi tool này với khoảng thời gian cần đọc.</p><h2>Tóm tắt</h2><p>MCP là cách chuẩn hoá để AI sử dụng đúng năng lực, trong đúng phạm vi và với đường đi có thể kiểm tra.</p>";
 
 const text = (value: unknown) => typeof value === "string" ? value : "";

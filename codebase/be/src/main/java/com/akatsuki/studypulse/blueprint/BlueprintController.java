@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/mental-model/runs/{runId}/blueprint")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
 public class BlueprintController {
   private final BlueprintJobService jobs;
   public BlueprintController(BlueprintJobService jobs){this.jobs=jobs;}

@@ -25,6 +25,27 @@ Set `NEXT_PUBLIC_BE_URL` when the backend is not running at the default local UR
 NEXT_PUBLIC_BE_URL=http://localhost:8080 npm run dev
 ```
 
+## Deploy with Coolify
+
+Deploy this directory as a separate Nixpacks application:
+
+- Base Directory: `codebase/fe`
+- Port: `3000`
+- Static site: disabled
+
+Add `NEXT_PUBLIC_BE_URL` as a **build variable**. Next.js publishes variables
+prefixed with `NEXT_PUBLIC_` into the browser bundle while it builds, so changing
+the value requires a redeploy.
+
+For the current HTTP-only backend demo, use:
+
+```env
+NEXT_PUBLIC_BE_URL=http://j88g4wcso4cs8cks84w8g0w4.103.72.56.152.sslip.io
+```
+
+The frontend and backend must use the same scheme: an HTTPS frontend cannot call
+an HTTP backend. The backend must also allow the frontend domain through CORS.
+
 Start the backend first and configure its AI keys in `codebase/be/.env`.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
